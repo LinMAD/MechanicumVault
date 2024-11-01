@@ -1,0 +1,44 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{CDB13409-78E1-4D17-B177-BB472A89EBA3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{4EF58421-C2BE-4668-B176-67EE62B5CA0D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MechanicumVault.Core", "src\MechanicumVault.Core\MechanicumVault.Core.csproj", "{92D79108-DCD2-49D3-8D28-890D13A465F8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MechanicumVault.App.Client", "src\MechanicumVault.App.Client\MechanicumVault.App.Client.csproj", "{2CDAD193-BA6E-4144-8A6E-4D07845EF577}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MechanicumVault.App.Server", "src\MechanicumVault.App.Server\MechanicumVault.App.Server.csproj", "{8C3C663B-B7BB-493D-A5D5-01444FEF1630}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MechanicumVault.Core.UnitTests", "tests\MechanicumVault.Core.UnitTests\MechanicumVault.Core.UnitTests.csproj", "{59F46C82-890D-44D7-AFCD-503C74B160F6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{92D79108-DCD2-49D3-8D28-890D13A465F8} = {CDB13409-78E1-4D17-B177-BB472A89EBA3}
+		{2CDAD193-BA6E-4144-8A6E-4D07845EF577} = {CDB13409-78E1-4D17-B177-BB472A89EBA3}
+		{8C3C663B-B7BB-493D-A5D5-01444FEF1630} = {CDB13409-78E1-4D17-B177-BB472A89EBA3}
+		{59F46C82-890D-44D7-AFCD-503C74B160F6} = {4EF58421-C2BE-4668-B176-67EE62B5CA0D}
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{92D79108-DCD2-49D3-8D28-890D13A465F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{92D79108-DCD2-49D3-8D28-890D13A465F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{92D79108-DCD2-49D3-8D28-890D13A465F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{92D79108-DCD2-49D3-8D28-890D13A465F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2CDAD193-BA6E-4144-8A6E-4D07845EF577}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2CDAD193-BA6E-4144-8A6E-4D07845EF577}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2CDAD193-BA6E-4144-8A6E-4D07845EF577}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2CDAD193-BA6E-4144-8A6E-4D07845EF577}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C3C663B-B7BB-493D-A5D5-01444FEF1630}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C3C663B-B7BB-493D-A5D5-01444FEF1630}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C3C663B-B7BB-493D-A5D5-01444FEF1630}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C3C663B-B7BB-493D-A5D5-01444FEF1630}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59F46C82-890D-44D7-AFCD-503C74B160F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59F46C82-890D-44D7-AFCD-503C74B160F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59F46C82-890D-44D7-AFCD-503C74B160F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59F46C82-890D-44D7-AFCD-503C74B160F6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
