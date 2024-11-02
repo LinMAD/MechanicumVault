@@ -47,7 +47,7 @@ namespace MechanicumVault.App.Server
 
 			Logger.LogInformation("IP: {ServerIP}", ServerConfiguration.Ip);
 			Logger.LogInformation("Port: {ServerPort}", ServerConfiguration.Port);
-			
+
 			var listener = new TcpListener(IPAddress.Any, ServerConfiguration.Port);
 			listener.Start();
 			while (true)
