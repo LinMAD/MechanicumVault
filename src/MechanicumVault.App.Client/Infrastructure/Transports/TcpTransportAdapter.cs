@@ -5,8 +5,8 @@ using MechanicumVault.App.Client.Common.Mode;
 using MechanicumVault.App.Client.Extensions;
 using MechanicumVault.Core.Configurations;
 using MechanicumVault.Core.Exceptions;
+using MechanicumVault.Core.Infrastructure.Providers.Synchronization;
 using MechanicumVault.Core.Infrastructure.Transports;
-using MechanicumVault.Core.Providers.Synchronization;
 using Microsoft.Extensions.Logging;
 
 namespace MechanicumVault.App.Client.Infrastructure.Transports;
@@ -19,7 +19,7 @@ public class TcpTransportAdapter : ITcpTransport
 	private readonly ILogger _logger;
 	private readonly ServerConfiguration _serverCfg;
 	private readonly ApplicationConfiguration _appCfg;
-	
+
 	// TODO Refactor this part to have better state control when TCP Client is connected to server
 	private TcpClient? _tcpClient;
 	private bool _isTcpClientConnected = false;
@@ -46,9 +46,9 @@ public class TcpTransportAdapter : ITcpTransport
 		catch (Exception e)
 		{
 			_logger.LogCritical(
-				e, 
-				"Failed to connect to server IP: {IP} and Port: {Port}", 
-				_serverCfg.Ip, 
+				e,
+				"Failed to connect to server IP: {IP} and Port: {Port}",
+				_serverCfg.Ip,
 				_serverCfg.Port
 			);
 			throw new RuntimeException("Unable to connect to server");
@@ -61,7 +61,7 @@ public class TcpTransportAdapter : ITcpTransport
 		{
 			if (_isTcpClientConnected)
 			{
-				_tcpClient?.Close();				
+				_tcpClient?.Close();
 			}
 		}
 		catch (Exception e)
@@ -75,14 +75,16 @@ public class TcpTransportAdapter : ITcpTransport
 		try
 		{
 			NetworkStream? stream = _tcpClient?.GetStream();
-			if (stream == null) return;
-			
-			var newFileSynchronizationMessage = new FileSynchronizationMessage(syncChangeType, filePath.GetSourceFolderRelativePath(_appCfg));
+			if (stream == null)
+				return;
+
+			var newFileSynchronizationMessage = new SynchronizationMessage(syncChangeType, filePath.GetSourceFolderRelativePath(_appCfg));
 			byte[] bytesNewMessage = newFileSynchronizationMessage.ToBytes();
-			if (bytesNewMessage.Length == 0) return;
-			
+			if (bytesNewMessage.Length == 0)
+				return;
+
 			_logger.LogInformation(
-				"Synchronization of file {path} with {event}", 
+				"Synchronization of file {path} with {event}",
 				newFileSynchronizationMessage.FilePath,
 				newFileSynchronizationMessage.SyncChangeType
 			);
@@ -136,7 +138,7 @@ public class TcpTransportAdapter : ITcpTransport
 			_logger.LogWarning(
 				"Failed to notify server about synchronization On {Event} for file {path}, error: {msg}",
 				syncChangeType,
-				filePath, 
+				filePath,
 				e.Message
 			);
 		}

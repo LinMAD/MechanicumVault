@@ -9,7 +9,7 @@ public interface ITcpTransport
 	/// Must establish connection between P2P.
 	/// </summary>
 	public void Connect();
-	
+
 	/// <summary>
 	/// Must handle connection shutdown.
 	/// </summary>

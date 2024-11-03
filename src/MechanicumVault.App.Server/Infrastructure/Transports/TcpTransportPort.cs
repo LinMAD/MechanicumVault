@@ -1,12 +1,11 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
-using System.Text;
 using MechanicumVault.App.Server.Common.Configurations;
 using MechanicumVault.Core.Configurations;
 using MechanicumVault.Core.Exceptions;
+using MechanicumVault.Core.Infrastructure.Providers.Synchronization;
 using MechanicumVault.Core.Infrastructure.Transports;
-using MechanicumVault.Core.Providers.Synchronization;
 using Microsoft.Extensions.Logging;
 
 namespace MechanicumVault.App.Server.Infrastructure.Transports;
@@ -70,7 +69,7 @@ public class TcpTransportPort(ILogger logger, ServerConfiguration serverCfg, App
 			throw new IncomingClientException("Failed to accept tcp client", e);
 		}
 	}
-	
+
 	public void HandleClientNotification(TcpClient tcpClient)
 	{
 		// TODO Refactor to several methods or classes => reduce complexity
@@ -80,21 +79,22 @@ public class TcpTransportPort(ILogger logger, ServerConfiguration serverCfg, App
 			// TODO Investigate Case 1: Big giles integrity (hash) maybe client closing to early 
 			// TODO Investigate Case 2: Big folders might be not always sync
 			// TODO Investigate Case 3: Improve renaming of files must be provided from client => old -> new file / folder
-			FileSynchronizationMessage? newFileSynchronizationMessage = null;
+			SynchronizationMessage? newFileSynchronizationMessage = null;
 			NetworkStream stream = tcpClient.GetStream();
 			byte[] buffer = new byte[1024];
 			int bytesRead = stream.Read(buffer, 0, buffer.Length);
-			
+
 			try
 			{
-				newFileSynchronizationMessage = FileSynchronizationMessage.FromBytes(buffer, bytesRead);
+				newFileSynchronizationMessage = SynchronizationMessage.FromBytes(buffer, bytesRead);
 			}
 			catch (DeserializationException e)
 			{
 				logger.LogError("Client message is corrupted, unable to deserialize bytes with error: {msg}", e.Message);
 			}
-			
-			if (newFileSynchronizationMessage == null) return;
+
+			if (newFileSynchronizationMessage == null)
+				return;
 
 			logger.LogDebug("New message decoded, file: {path}", newFileSynchronizationMessage.FilePath);
 			string destinationPath = Path.Combine(appCfg.DestinationDirectory, newFileSynchronizationMessage.FilePath);
@@ -143,7 +143,7 @@ public class TcpTransportPort(ILogger logger, ServerConfiguration serverCfg, App
 					}
 
 					if (Path.GetDirectoryName(destinationPath) == string.Empty ||
-					    Path.GetDirectoryName(destinationPath) == null)
+						Path.GetDirectoryName(destinationPath) == null)
 					{
 						logger.LogError(
 							"On the server side directory is empty, file {path} will be not processed for synchronization.",
@@ -166,11 +166,12 @@ public class TcpTransportPort(ILogger logger, ServerConfiguration serverCfg, App
 					if (File.Exists(destinationPath))
 					{
 						File.Delete(destinationPath);
-					} else if (Directory.Exists(destinationPath))
+					}
+					else if (Directory.Exists(destinationPath))
 					{
 						Directory.Delete(destinationPath, true);
 					}
-					
+
 					logger.LogInformation(
 						"Synchronization Event {type} is done for file: {path}",
 						newFileSynchronizationMessage.SyncChangeType,
@@ -190,7 +191,7 @@ public class TcpTransportPort(ILogger logger, ServerConfiguration serverCfg, App
 		{
 			if (_tcpListener != null)
 			{
-				tcpClient.Close();				
+				tcpClient.Close();
 			}
 		}
 	}
@@ -202,7 +203,8 @@ public class TcpTransportPort(ILogger logger, ServerConfiguration serverCfg, App
 
 	private bool IsHashSame(byte[] hash1, byte[] hash2)
 	{
-		if (hash1.Length != hash2.Length) return false;
+		if (hash1.Length != hash2.Length)
+			return false;
 
 		return !hash1.Where((t, i) => t != hash2[i]).Any();
 	}

@@ -7,7 +7,7 @@
 	{
 		private static Common.Client Client = null!;
 		private static readonly CancellationTokenSource CancellationTokenSource = new CancellationTokenSource();
-		
+
 		static void Main(string[] args)
 		{
 			Client = new Common.Client(args);
@@ -18,7 +18,7 @@
 
 			Client.Run(CancellationTokenSource.Token);
 		}
-		
+
 		/// <summary>
 		/// Handles Ctrl+C (SIGINT) int terminal
 		/// </summary>

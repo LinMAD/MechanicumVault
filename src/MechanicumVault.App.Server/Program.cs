@@ -4,7 +4,7 @@
 	{
 		private static Common.Server Server = null!;
 		private static readonly CancellationTokenSource CancellationTokenSource = new CancellationTokenSource();
-		
+
 		static void Main(string[] args)
 		{
 			// Listen application cancellation for graceful shutdown
@@ -14,7 +14,7 @@
 			Server = new Common.Server(args);
 			Server.Run(CancellationTokenSource.Token);
 		}
-		
+
 		/// <summary>
 		/// Handles Ctrl+C (SIGINT) int terminal
 		/// </summary>

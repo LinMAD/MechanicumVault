@@ -5,6 +5,6 @@
 /// </summary>
 public class ServerConfiguration
 {
-	public required string Ip { get; set; } = "127.0.0.1";
+	public string Ip { get; set; } = "127.0.0.1";
 	public required int Port { get; set; } = 52000;
 }

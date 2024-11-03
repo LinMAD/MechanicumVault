@@ -18,7 +18,7 @@ public class IntegrationProcessHandler
 		var clientArgs = new[]
 		{
 			"--Logging:LogLevel:Default=Debug",
-			"--Server:IP=127.0.0.1", 
+			"--Server:IP=127.0.0.1",
 			$"--Server:Port={randomPort}",
 			"--Application:SourceMode=FileSystem",
 			$"--Application:SourceDirectory={clientSourceDirectory}"
@@ -27,7 +27,7 @@ public class IntegrationProcessHandler
 
 		var serverArgs = new[]
 		{
-			"--Logging:LogLevel:Default=Debug", 
+			"--Logging:LogLevel:Default=Debug",
 			$"--Server:Port={randomPort}",
 			$"--Application:DestinationDirectory={serverDestinationDirectory}"
 		};
@@ -47,7 +47,7 @@ public class IntegrationProcessHandler
 	{
 		_syncClient.Run(cancellationToken);
 	}
-	
+
 	public void StartServer(CancellationToken cancellationToken)
 	{
 		_syncServer.Run(cancellationToken);

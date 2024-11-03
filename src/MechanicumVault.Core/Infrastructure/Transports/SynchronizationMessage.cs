@@ -1,36 +1,34 @@
-﻿using System.Text;
-using System.Text.Json;
-using MechanicumVault.Core.Exceptions;
-using MechanicumVault.Core.Providers.Synchronization;
+﻿using MechanicumVault.Core.Exceptions;
+using MechanicumVault.Core.Infrastructure.Providers.Synchronization;
 using MessagePack;
 
 namespace MechanicumVault.Core.Infrastructure.Transports;
 
 /// <summary>
-/// FileChangeMessage is a standard object for transports communication.
+/// SynchronizationMessage is a standard object for transports communication.
 /// In case when adapter will send a message and port will receive it. 
 /// </summary>
 [MessagePackObject]
-public record FileSynchronizationMessage
+public record SynchronizationMessage
 {
 	[Key(0)]
 	public SynchronizationChangeType SyncChangeType { get; init; } = SynchronizationChangeType.Uknown;
 
 	[Key(1)]
 	public string FilePath { get; init; } = string.Empty;
-	
-	public FileSynchronizationMessage(SynchronizationChangeType syncChangeType, string filePath)
+
+	public SynchronizationMessage(SynchronizationChangeType syncChangeType, string filePath)
 	{
 		SyncChangeType = syncChangeType;
 		FilePath = filePath;
 	}
-	
+
 	public byte[] ToBytes()
 	{
 		return FilePath == string.Empty ? [] : MessagePackSerializer.Serialize(this);
 	}
 
-	public static FileSynchronizationMessage? FromBytes(byte[] data, int count)
+	public static SynchronizationMessage? FromBytes(byte[] data, int count)
 	{
 		if (data == null || data.Length == 0 || count <= 0)
 		{
@@ -39,7 +37,7 @@ public record FileSynchronizationMessage
 
 		try
 		{
-			return MessagePackSerializer.Deserialize<FileSynchronizationMessage>(data);
+			return MessagePackSerializer.Deserialize<SynchronizationMessage>(data);
 		}
 		catch (MessagePackSerializationException ex)
 		{

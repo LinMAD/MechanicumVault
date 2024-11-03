@@ -19,9 +19,9 @@ public class Server
 	private readonly IConfiguration _configuration = null!;
 	private readonly ServerConfiguration _serverConfiguration = null!;
 	private readonly ApplicationConfiguration _applicationConfiguration = null!;
-	
+
 	private TcpTransportPort? _tcpTransportPortListener;
-	
+
 	private bool _isServerRunning = false;
 
 	public Server(string[] commandLineArguments)
@@ -52,13 +52,17 @@ public class Server
 	public void Run(CancellationToken cancellationToken)
 	{
 		Logger.LogInformation("Starting server...");
-		
+		Logger.LogInformation(
+			"Starting server for file synchronization with destination directory:{path}",
+			_applicationConfiguration.DestinationDirectory
+		);
+
 		_tcpTransportPortListener = new TcpTransportPort(Logger, _serverConfiguration, _applicationConfiguration);
 		_tcpTransportPortListener.Connect();
 		_isServerRunning = _tcpTransportPortListener.IsAwaitingClients();
-		
+
 		Logger.LogInformation("Server ready to accept client connections...");
-		
+
 		while (!cancellationToken.IsCancellationRequested || _isServerRunning)
 		{
 			var newTcpClient = _tcpTransportPortListener.AcceptTcpClient();
@@ -69,7 +73,7 @@ public class Server
 				newTcpClient.GetHashCode(),
 				newTcpClient.Client.RemoteEndPoint?.ToString()
 			);
-			
+
 			Thread clientThread = new Thread(() => _tcpTransportPortListener.HandleClientNotification(newTcpClient));
 			clientThread.Start();
 		}
@@ -82,7 +86,7 @@ public class Server
 		_isServerRunning = false;
 		if (_tcpTransportPortListener != null && _tcpTransportPortListener.IsAwaitingClients())
 		{
-			_tcpTransportPortListener.Close();	
+			_tcpTransportPortListener.Close();
 		}
 	}
 }

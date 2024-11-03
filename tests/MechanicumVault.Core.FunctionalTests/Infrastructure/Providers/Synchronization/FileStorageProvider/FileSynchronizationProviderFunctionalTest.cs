@@ -1,9 +1,9 @@
-﻿using MechanicumVault.Core.Providers.Synchronization;
-using MechanicumVault.Core.Providers.Synchronization.FileStorageProvider;
-using MechanicumVault.Core.Providers.Synchronization.FileStorageProvider.Factories;
+﻿using MechanicumVault.Core.Infrastructure.Providers.Synchronization;
+using MechanicumVault.Core.Infrastructure.Providers.Synchronization.FileStorageProvider;
+using MechanicumVault.Core.Infrastructure.Providers.Synchronization.FileStorageProvider.Factories;
 using Xunit;
 
-namespace MechanicumVault.Core.FunctionalTests.Providers.Synchronization.FileStorageProvider;
+namespace MechanicumVault.Core.FunctionalTests.Infrastructure.Providers.Synchronization.FileStorageProvider;
 
 public class FileSynchronizationProviderFunctionalTest
 {

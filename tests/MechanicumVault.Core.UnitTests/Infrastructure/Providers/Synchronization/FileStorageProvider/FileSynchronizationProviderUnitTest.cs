@@ -1,10 +1,10 @@
 ﻿using MechanicumVault.Core.Exceptions;
-using MechanicumVault.Core.Providers.Synchronization.FileStorageProvider;
-using MechanicumVault.Core.Providers.Synchronization.FileStorageProvider.Factories;
+using MechanicumVault.Core.Infrastructure.Providers.Synchronization.FileStorageProvider;
+using MechanicumVault.Core.Infrastructure.Providers.Synchronization.FileStorageProvider.Factories;
 using Moq;
 using Xunit;
 
-namespace MechanicumVault.Core.UnitTests.Providers.Synchronization.FileStorageProvider;
+namespace MechanicumVault.Core.UnitTests.Infrastructure.Providers.Synchronization.FileStorageProvider;
 
 public class FileSynchronizationProviderUnitTest
 {

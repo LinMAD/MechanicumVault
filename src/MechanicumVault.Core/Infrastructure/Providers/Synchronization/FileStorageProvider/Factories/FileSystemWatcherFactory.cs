@@ -1,4 +1,4 @@
-﻿namespace MechanicumVault.Core.Providers.Synchronization.FileStorageProvider.Factories;
+﻿namespace MechanicumVault.Core.Infrastructure.Providers.Synchronization.FileStorageProvider.Factories;
 
 public class FileSystemWatcherFactory : IFileSystemWatcherFactory
 {

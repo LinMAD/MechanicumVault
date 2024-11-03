@@ -11,10 +11,6 @@ public class MechanicumVaultException : Exception
 	{
 	}
 
-	protected MechanicumVaultException(SerializationInfo info, StreamingContext context) : base(info, context)
-	{
-	}
-
 	public MechanicumVaultException(string? message) : base(message)
 	{
 	}

@@ -9,13 +9,15 @@ public class SequentialCollection { } // This is a stub to force xUnit run by 1 
 public class FileSynchronizationEndToEndTest
 {
 	private const int DefaultTimeout = 3000;
-	
+
 	const string ClientSourceDirectoryBasePath = "Resources\\SourceDirectory";
 	const string ServerDestinationDirectoryBasePath = "Resources\\DestinationDirectory";
 
 	const string TestFileName = "e2e.txt";
 	const string TestFileContent = "Lorem Ipsum is simply dummy text of the printing and typesetting industry.";
 	const string ClientSubDirectoryName = "TestSubFolder";
+
+	// TODO Take a look on E2E test => looks like there is Race condition for file manipulation in test cases
 
 	public FileSynchronizationEndToEndTest()
 	{
@@ -27,8 +29,10 @@ public class FileSynchronizationEndToEndTest
 		{
 			var clientSubFolder = Path.Combine(ClientSourceDirectoryBasePath, ClientSubDirectoryName);
 			var serverSubFolder = Path.Combine(ServerDestinationDirectoryBasePath, ClientSubDirectoryName);
-			if (Directory.Exists(clientSubFolder)) Directory.Delete(clientSubFolder, true);
-			if (Directory.Exists(serverSubFolder)) Directory.Delete(serverSubFolder, true);
+			if (Directory.Exists(clientSubFolder))
+				Directory.Delete(clientSubFolder, true);
+			if (Directory.Exists(serverSubFolder))
+				Directory.Delete(serverSubFolder, true);
 		}
 	}
 
@@ -136,16 +140,16 @@ public class FileSynchronizationEndToEndTest
 			await writer.WriteLineAsync(TestFileContent);
 		}
 		Thread.Sleep(2000);
-		
+
 		Assert.True(File.Exists(serverPathToSyncFile));
-		
+
 		string fileContent = await File.ReadAllTextAsync(serverPathToSyncFile, cancellationTokenSource.Token);
 		Assert.NotEmpty(fileContent);
 		Assert.Matches(TestFileContent, fileContent);
-		
+
 		await cancellationTokenSource.CancelAsync();
 	}
-	
+
 	[Fact]
 	public async Task ConnectClientToServer_FolderWithFile()
 	{
@@ -167,14 +171,14 @@ public class FileSynchronizationEndToEndTest
 			await writer.WriteLineAsync(TestFileContent);
 		}
 		Thread.Sleep(3000);
-		
+
 		Assert.True(Directory.Exists(serverPathToSyncSubDirectory));
 		Assert.True(File.Exists(serverPathToSyncFile));
-		
+
 		string fileContent = await File.ReadAllTextAsync(serverPathToSyncFile, cancellationTokenSource.Token);
 		Assert.NotEmpty(fileContent);
 		Assert.Matches(TestFileContent, fileContent);
-		
+
 		await cancellationTokenSource.CancelAsync();
 	}
 }

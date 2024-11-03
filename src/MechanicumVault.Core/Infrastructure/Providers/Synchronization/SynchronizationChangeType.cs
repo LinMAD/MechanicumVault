@@ -1,4 +1,4 @@
-﻿namespace MechanicumVault.Core.Providers.Synchronization;
+﻿namespace MechanicumVault.Core.Infrastructure.Providers.Synchronization;
 
 /// <summary>
 /// SynchronizationChangeType representing the type of change that occurred.

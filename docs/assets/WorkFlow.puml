@@ -1,0 +1,40 @@
+﻿@startuml
+'https://plantuml.com/sequence-diagram
+
+actor User
+
+== Initialization ==
+
+User -> MechanicumVault_Client: Starting application
+note left
+With appsettings.json
+client configuration file
+end note
+
+MechanicumVault_Client -> Users_FileSystem: Access to Source Directory
+MechanicumVault_Client -> MechanicumVault_Client: Observing Source Directory
+note left
+Tracking any changes
+ (file and subfolders)
+ in Source Directory
+end note
+
+User -> MechanicumVault_Server : Lunching Server
+note left
+With appsettings.json
+server configuration file
+end note
+MechanicumVault_Server -> MechanicumVault_Server : Listening TCP/IP connections
+
+== Synchronization ==
+
+User -> Users_FileSystem : Manipulates files
+note over User 
+Can do any file related 
+manipulations in Source Directory.
+Including removing, creating etc.
+end note 
+MechanicumVault_Client -> MechanicumVault_Server: Sends File Synchronization Message
+MechanicumVault_Server -> Users_FileSystem: Replicate File Synchronization Message
+
+@enduml

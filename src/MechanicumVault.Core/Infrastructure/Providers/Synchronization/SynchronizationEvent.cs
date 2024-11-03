@@ -1,4 +1,4 @@
-﻿namespace MechanicumVault.Core.Providers.Synchronization;
+﻿namespace MechanicumVault.Core.Infrastructure.Providers.Synchronization;
 
 /// <summary>
 /// SynchronizationEvent that is used for implementation of ISynchronizationProvider.

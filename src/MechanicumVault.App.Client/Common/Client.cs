@@ -5,7 +5,7 @@ using MechanicumVault.App.Client.Infrastructure.Transports;
 using MechanicumVault.Core;
 using MechanicumVault.Core.Configurations;
 using MechanicumVault.Core.Exceptions;
-using MechanicumVault.Core.Providers.Synchronization;
+using MechanicumVault.Core.Infrastructure.Providers.Synchronization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -64,6 +64,10 @@ public sealed class Client
 	{
 		try
 		{
+			Logger.LogInformation(
+				"Preparing file synchronization for source directory:{path}",
+				_applicationConfiguration.SourceDirectory
+			);
 			var synchronizationProvider = GetStorageSynchronizationProvider(_applicationConfiguration.SourceMode);
 			synchronizationProvider.Observe();
 
@@ -91,7 +95,8 @@ public sealed class Client
 
 	public void Stop()
 	{
-		if (_isTerminationCalled) return;
+		if (_isTerminationCalled)
+			return;
 
 		Logger.LogInformation("Stopping client...");
 		_isClientRunning = false;

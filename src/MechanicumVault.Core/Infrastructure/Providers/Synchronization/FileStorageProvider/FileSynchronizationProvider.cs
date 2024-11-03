@@ -1,7 +1,7 @@
 ﻿using MechanicumVault.Core.Exceptions;
-using MechanicumVault.Core.Providers.Synchronization.FileStorageProvider.Factories;
+using MechanicumVault.Core.Infrastructure.Providers.Synchronization.FileStorageProvider.Factories;
 
-namespace MechanicumVault.Core.Providers.Synchronization.FileStorageProvider;
+namespace MechanicumVault.Core.Infrastructure.Providers.Synchronization.FileStorageProvider;
 
 /// <summary>
 /// Local file synchronization provided for monitoring changes.

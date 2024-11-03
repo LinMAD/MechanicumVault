@@ -1,4 +1,4 @@
-﻿namespace MechanicumVault.Core.Providers.Synchronization;
+﻿namespace MechanicumVault.Core.Infrastructure.Providers.Synchronization;
 
 /// <summary>
 /// Common interface to provide monitoring file changes and notifying listeners of such changes.

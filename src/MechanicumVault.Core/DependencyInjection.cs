@@ -1,6 +1,6 @@
-﻿using MechanicumVault.Core.Providers.Synchronization;
-using MechanicumVault.Core.Providers.Synchronization.FileStorageProvider;
-using MechanicumVault.Core.Providers.Synchronization.FileStorageProvider.Factories;
+﻿using MechanicumVault.Core.Infrastructure.Providers.Synchronization;
+using MechanicumVault.Core.Infrastructure.Providers.Synchronization.FileStorageProvider;
+using MechanicumVault.Core.Infrastructure.Providers.Synchronization.FileStorageProvider.Factories;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace MechanicumVault.Core;
@@ -23,10 +23,10 @@ public static class DependencyInjection
 
 		#region Services registration
 		// TODO Create and Add logger
-		
+
 		srv.AddSingleton<IFileSystemWatcherFactory, FileSystemWatcherFactory>();
 		srv.AddSingleton<ISynchronizationProvider, FileSynchronizationProvider>();
-		
+
 		#endregion
 
 		ServiceProvider = srv.BuildServiceProvider();
