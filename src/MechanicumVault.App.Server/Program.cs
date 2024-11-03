@@ -1,8 +1,5 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-using System.Net;
-using System.Net.Sockets;
-using System.Reflection;
+﻿using System.Reflection;
+using MechanicumVault.App.Server.Infrastructure.Transports;
 using MechanicumVault.Core.Configurations;
 using MechanicumVault.Core.Exceptions;
 using Microsoft.Extensions.Configuration;
@@ -48,13 +45,29 @@ namespace MechanicumVault.App.Server
 
 			Logger.LogInformation("IP: {ServerIP}", ServerConfiguration.Ip);
 			Logger.LogInformation("Port: {ServerPort}", ServerConfiguration.Port);
+			
+			var listener = new TcpTransportPort(Logger, ServerConfiguration);
+			listener.Connect();
 
-			var listener = new TcpListener(IPAddress.Any, ServerConfiguration.Port);
-			listener.Start();
-			while (true)
+			while (true) // TODO Make runtime bool state
 			{
-				TcpClient client = listener.AcceptTcpClient();
-				Logger.LogInformation("Accepted new Client HASH: {ID}", client.GetHashCode());
+				try
+				{
+					var tcpClient = listener.AcceptTcpClient();
+					Logger.LogInformation(
+						"Accepted new Client Type: {Type} Client HASH: {ID}",
+						tcpClient.GetType(),
+						tcpClient.GetHashCode()
+					);
+				}
+				catch (Exception e) when (e is RuntimeException or IncomingClientException)
+				{
+					// There was issue to accept connection, not critical.
+				}
+				catch (Exception e)
+				{
+					throw new RuntimeException("An unexpected server error occurred while handling an incoming client connection", e);
+				}
 			}
 		}
 	}

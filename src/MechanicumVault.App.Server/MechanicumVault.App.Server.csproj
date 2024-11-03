@@ -25,4 +25,8 @@
       <ProjectReference Include="..\MechanicumVault.Core\MechanicumVault.Core.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Common\" />
+    </ItemGroup>
+
 </Project>

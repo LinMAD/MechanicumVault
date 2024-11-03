@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using MechanicumVault.App.Client.Common.Configurations;
 using MechanicumVault.App.Client.Common.Mode;
-using MechanicumVault.App.Client.Common.Transports;
+using MechanicumVault.App.Client.Infrastructure.Transports;
 using MechanicumVault.Core;
 using MechanicumVault.Core.Configurations;
 using MechanicumVault.Core.Exceptions;
@@ -19,7 +19,7 @@ public sealed class Client
 {
 	private static ILogger Logger = null!;
 	private readonly ServiceProvider _serviceProvider;
-	private readonly TcpTransport _tcpTransport;
+	private readonly TcpTransportAdapter _tcpTransportAdapter;
 
 	#region Configurations
 
@@ -56,7 +56,7 @@ public sealed class Client
 		_serverConfiguration = serverCfg ?? throw new InvalidConfiguration("Unable to load client configuration for server.");
 		_applicationConfiguration = appCfg ?? throw new InvalidConfiguration("Unable to load client configuration with source directory path for synchronization.");
 		
-		_tcpTransport = new TcpTransport(Logger, _serverConfiguration);
+		_tcpTransportAdapter = new TcpTransportAdapter(Logger, _serverConfiguration);
 	}
 
 	public void Run()
@@ -77,7 +77,7 @@ public sealed class Client
 		try
 		{
 			Logger.LogInformation("Connecting to Server: {ServerIP}:{ServerPort} ...", _serverConfiguration.Ip,  _serverConfiguration.Port);
-			_tcpTransport.Connect();
+			_tcpTransportAdapter.Connect();
 			Logger.LogInformation("Connected...");
 
 			while (isClientRunning)
@@ -96,7 +96,7 @@ public sealed class Client
 	public void Stop()
 	{
 		// TODO Update ISynchronizationProvider to gracefully stop File Observing
-		_tcpTransport.Close();
+		_tcpTransportAdapter.Close();
 	}
 
 	ISynchronizationProvider GetStorageSynchronizationProvider(ClientProviderMode mode)
@@ -131,6 +131,6 @@ public sealed class Client
 		Logger.LogDebug("Synchronization provider: {Name}", sender.GetType().Name);
 		Logger.LogDebug("Event Type: {Type} - File: {Path}", e.ChangeType, e.FilePath);
 		
-		_tcpTransport.NotifyServer(e.ChangeType, e.FilePath);
+		_tcpTransportAdapter.NotifyServer(e.ChangeType, e.FilePath);
 	}
 }

@@ -1,15 +1,16 @@
 ﻿using System.Net.Sockets;
 using MechanicumVault.Core.Configurations;
 using MechanicumVault.Core.Exceptions;
+using MechanicumVault.Core.Infrastructure.Transports;
 using MechanicumVault.Core.Providers.Synchronization;
 using Microsoft.Extensions.Logging;
 
-namespace MechanicumVault.App.Client.Common.Transports;
+namespace MechanicumVault.App.Client.Infrastructure.Transports;
 
 /// <summary>
-/// TcpTransport responsible to connect to server and send updates.
+/// TcpTransportAdapter responsible to connect to Server TCPTransportPort and send updates.
 /// </summary>
-public class TcpTransport(ILogger logger, ServerConfiguration cfg)
+public class TcpTransportAdapter(ILogger logger, ServerConfiguration serverCfg) : ITcpTransport
 {
 	TcpClient? _tcpClient;
 
@@ -17,16 +18,16 @@ public class TcpTransport(ILogger logger, ServerConfiguration cfg)
 	{
 		try
 		{
-			_tcpClient = new TcpClient(cfg.Ip, cfg.Port);
+			_tcpClient = new TcpClient(serverCfg.Ip, serverCfg.Port);
 		}
 		catch (SocketException e)
 		{
-			logger.LogError("Connection failed, error: {msg}", e.Message);
+			logger.LogCritical("Connection failed, error: {msg}", e.Message);
 			throw new RuntimeException("Unable to connect to server");
 		}
 		catch (Exception e)
 		{
-			logger.LogCritical(e, "Failed to connect to server IP: {IP} and Port: {Port}", cfg.Ip, cfg.Port);
+			logger.LogCritical(e, "Failed to connect to server IP: {IP} and Port: {Port}", serverCfg.Ip, serverCfg.Port);
 			throw new RuntimeException("Unable to connect to server");
 		}
 	}
@@ -48,6 +49,7 @@ public class TcpTransport(ILogger logger, ServerConfiguration cfg)
 		try
 		{
 			NetworkStream? netStream = _tcpClient?.GetStream();
+			// TODO Send file changes
 		}
 		catch (InvalidOperationException e)
 		{
