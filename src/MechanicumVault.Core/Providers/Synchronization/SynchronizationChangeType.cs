@@ -5,6 +5,7 @@
 /// </summary>
 public enum SynchronizationChangeType
 {
+	Uknown,
 	Created,
 	Changed,
 	Deleted,

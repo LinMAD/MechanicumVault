@@ -22,7 +22,7 @@ public class TcpTransportAdapter : ITcpTransport
 	
 	// TODO Refactor this part to have better state control when TCP Client is connected to server
 	private TcpClient? _tcpClient;
-	private bool isTcpClientConnected = false;
+	private bool _isTcpClientConnected = false;
 
 	public TcpTransportAdapter(ILogger logger, ServerConfiguration serverCfg, ApplicationConfiguration appCfg)
 	{
@@ -36,7 +36,7 @@ public class TcpTransportAdapter : ITcpTransport
 		try
 		{
 			_tcpClient = new TcpClient(_serverCfg.Ip, _serverCfg.Port);
-			isTcpClientConnected = true;
+			_isTcpClientConnected = true;
 		}
 		catch (SocketException e)
 		{
@@ -59,7 +59,7 @@ public class TcpTransportAdapter : ITcpTransport
 	{
 		try
 		{
-			if (isTcpClientConnected)
+			if (_isTcpClientConnected)
 			{
 				_tcpClient?.Close();				
 			}
@@ -103,23 +103,25 @@ public class TcpTransportAdapter : ITcpTransport
 						stream.Write(fileData, 0, fileData.Length);
 
 						// Send file hash for integrity check
+						// TODO Investigate why computed has can be 0,0,0...
 						byte[] hash = SHA256.HashData(fileData);
 						stream.Write(hash, 0, hash.Length);
 						_logger.LogInformation(
-							"File is submitted to server for synchronization - event {type} for file: {path}",
-							newFileSynchronizationMessage.SyncChangeType,
-							newFileSynchronizationMessage.FilePath
+							"File: `{path}` is submitted  for synchronization with server - Event `{type}`",
+							newFileSynchronizationMessage.FilePath,
+							newFileSynchronizationMessage.SyncChangeType
 						);
 					}
 					break;
 				case SynchronizationChangeType.Deleted:
 					stream.Write(bytesNewMessage, 0, bytesNewMessage.Length);
 					_logger.LogInformation(
-						"File: {path} is submitted to be deleted on server side server for synchronization - event {type}",
-						newFileSynchronizationMessage.SyncChangeType,
-						newFileSynchronizationMessage.FilePath
+						"File: `{path}` is submitted to be deleted on server side server for synchronization - Event `{type}`",
+						newFileSynchronizationMessage.FilePath,
+						newFileSynchronizationMessage.SyncChangeType
 					);
 					break;
+				case SynchronizationChangeType.Uknown:
 				default:
 					throw new NotFoundException("Unhandled synchronization change type");
 			}

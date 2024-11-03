@@ -1,4 +1,5 @@
 ﻿using MechanicumVault.App.Client.Common.Configurations;
+using MechanicumVault.Core.Exceptions;
 
 namespace MechanicumVault.App.Client.Extensions;
 
@@ -18,7 +19,7 @@ public static class FilePathExtension
 		var fullAbsolute = Path.GetFullPath(fullPath);
 		if (!fullAbsolute.StartsWith(rootAbsolute, StringComparison.OrdinalIgnoreCase))
 		{
-			throw new ArgumentException("The specified path is not under the root folder.");
+			throw new RuntimeException("The specified path is not under the root folder.");
 		}
 
 		return Path.GetRelativePath(rootAbsolute, fullAbsolute);

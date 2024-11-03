@@ -60,7 +60,7 @@ public sealed class Client
 		_tcpTransportAdapter = new TcpTransportAdapter(Logger, _serverConfiguration, _applicationConfiguration);
 	}
 
-	public async Task Run(CancellationToken cancellationToken)
+	public void Run(CancellationToken cancellationToken)
 	{
 		try
 		{
@@ -80,7 +80,7 @@ public sealed class Client
 		{
 			try
 			{
-				await Task.Delay(1000, cancellationToken); // Delay to avoid tight looping.
+				Task.Delay(1000, cancellationToken); // Delay to avoid tight looping.
 			}
 			catch (TaskCanceledException)
 			{
@@ -94,7 +94,6 @@ public sealed class Client
 		if (_isTerminationCalled) return;
 
 		Logger.LogInformation("Stopping client...");
-		_tcpTransportAdapter.Close();
 		_isClientRunning = false;
 		_isTerminationCalled = true;
 	}
@@ -152,5 +151,6 @@ public sealed class Client
 		}
 
 		_tcpTransportAdapter.NotifyServer(e.ChangeType, e.FilePath);
+		_tcpTransportAdapter.Close();
 	}
 }

@@ -2,6 +2,7 @@
 using System.Text.Json;
 using MechanicumVault.Core.Exceptions;
 using MechanicumVault.Core.Providers.Synchronization;
+using MessagePack;
 
 namespace MechanicumVault.Core.Infrastructure.Transports;
 
@@ -9,34 +10,40 @@ namespace MechanicumVault.Core.Infrastructure.Transports;
 /// FileChangeMessage is a standard object for transports communication.
 /// In case when adapter will send a message and port will receive it. 
 /// </summary>
-public record FileSynchronizationMessage(SynchronizationChangeType SyncChangeType, string FilePath)
+[MessagePackObject]
+public record FileSynchronizationMessage
 {
+	[Key(0)]
+	public SynchronizationChangeType SyncChangeType { get; init; } = SynchronizationChangeType.Uknown;
+
+	[Key(1)]
+	public string FilePath { get; init; } = string.Empty;
+	
+	public FileSynchronizationMessage(SynchronizationChangeType syncChangeType, string filePath)
+	{
+		SyncChangeType = syncChangeType;
+		FilePath = filePath;
+	}
+	
 	public byte[] ToBytes()
 	{
-		return FilePath == string.Empty ? [] : JsonSerializer.SerializeToUtf8Bytes(this, JsonSerializerOptions);
+		return FilePath == string.Empty ? [] : MessagePackSerializer.Serialize(this);
 	}
 
 	public static FileSynchronizationMessage? FromBytes(byte[] data, int count)
 	{
 		if (data == null || data.Length == 0 || count <= 0)
 		{
-			throw new RuntimeException($"FileSynchronizationMessage {nameof(data)} must not be null or empty.");
+			throw new DeserializationException($"FileSynchronizationMessage {nameof(data)} must not be null or empty.");
 		}
 
 		try
 		{
-			var jsonSpan = new ReadOnlySpan<byte>(data, 0, count);
-			return JsonSerializer.Deserialize<FileSynchronizationMessage>(jsonSpan, JsonSerializerOptions);
+			return MessagePackSerializer.Deserialize<FileSynchronizationMessage>(data);
 		}
-		catch (JsonException ex)
+		catch (MessagePackSerializationException ex)
 		{
 			throw new DeserializationException("Error deserializing FileSynchronizationMessage from JSON.", ex);
 		}
 	}
-	
-	private static readonly JsonSerializerOptions JsonSerializerOptions = new JsonSerializerOptions
-	{
-		PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-		WriteIndented = false
-	};
 }

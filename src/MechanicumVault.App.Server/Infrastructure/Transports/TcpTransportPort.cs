@@ -77,27 +77,20 @@ public class TcpTransportPort(ILogger logger, ServerConfiguration serverCfg, App
 
 		try
 		{
-			// TODO This could be a problem for big files, handle later
-			// TODO Resolve issue with folders, it's not created + nested files
+			// TODO Investigate Case 1: Big giles integrity (hash) maybe client closing to early 
+			// TODO Investigate Case 2: Big folders might be not always sync
+			// TODO Investigate Case 3: Improve renaming of files must be provided from client => old -> new file / folder
+			FileSynchronizationMessage? newFileSynchronizationMessage = null;
 			NetworkStream stream = tcpClient.GetStream();
 			byte[] buffer = new byte[1024];
-
-			// TODO Investigate later why there is extra '0x00' when Json decode will be called
 			int bytesRead = stream.Read(buffer, 0, buffer.Length);
-			logger.LogDebug("Received new message, bytes lenght: {count}", bytesRead);
-
-			byte[] data = new byte[bytesRead]; // Create a new array that contains only the valid data
-			Array.Copy(buffer, data, bytesRead);
-			logger.LogDebug("Received new message, valid data bytes lenght: {count}", data.Length);
-
-			FileSynchronizationMessage? newFileSynchronizationMessage = null;
+			
 			try
 			{
-				newFileSynchronizationMessage = FileSynchronizationMessage.FromBytes(buffer, data.Length);
+				newFileSynchronizationMessage = FileSynchronizationMessage.FromBytes(buffer, bytesRead);
 			}
 			catch (DeserializationException e)
 			{
-				// TODO Investigate this case when Json is corrupted
 				logger.LogError("Client message is corrupted, unable to deserialize bytes with error: {msg}", e.Message);
 			}
 			
@@ -136,11 +129,12 @@ public class TcpTransportPort(ILogger logger, ServerConfiguration serverCfg, App
 					byte[] hashBuffer = new byte[32];
 					stream.Read(hashBuffer, 0, hashBuffer.Length);
 
+					// TODO Investigate why computed has can be 0,0,0...
 					byte[] computedHash = SHA256.HashData(fileData);
 					if (!IsHashSame(computedHash, hashBuffer))
 					{
-						logger.LogError(
-							"File integrity check failed for {path}, hash: {hash}, computed hash: {computedHash}",
+						logger.LogWarning(
+							"File might be corrupted, integrity check failed for {path}, hash: {hash}, computed hash: {computedHash}",
 							destinationPath,
 							hashBuffer,
 							computedHash
@@ -168,17 +162,22 @@ public class TcpTransportPort(ILogger logger, ServerConfiguration serverCfg, App
 					);
 					break;
 				case SynchronizationChangeType.Deleted:
+					// TODO Not accurate => client must provide context if it was folder or file that can have same name as folder
 					if (File.Exists(destinationPath))
 					{
 						File.Delete(destinationPath);
-						logger.LogInformation(
-							"Synchronization Event {type} is done for file: {path}",
-							newFileSynchronizationMessage.SyncChangeType,
-							destinationPath
-						);
+					} else if (Directory.Exists(destinationPath))
+					{
+						Directory.Delete(destinationPath, true);
 					}
-
+					
+					logger.LogInformation(
+						"Synchronization Event {type} is done for file: {path}",
+						newFileSynchronizationMessage.SyncChangeType,
+						destinationPath
+					);
 					break;
+				case SynchronizationChangeType.Uknown:
 				default:
 					throw new NotFoundException("Unhandled synchronization change type");
 			}

@@ -8,7 +8,7 @@
 		private static Common.Client Client = null!;
 		private static readonly CancellationTokenSource CancellationTokenSource = new CancellationTokenSource();
 		
-		static async Task Main(string[] args)
+		static void Main(string[] args)
 		{
 			Client = new Common.Client(args);
 
@@ -16,7 +16,7 @@
 			Console.CancelKeyPress += OnExit;
 			AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
 
-			await Client.Run(CancellationTokenSource.Token);
+			Client.Run(CancellationTokenSource.Token);
 		}
 		
 		/// <summary>

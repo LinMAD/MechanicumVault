@@ -24,8 +24,12 @@ public class FileSynchronizationMessageUnitTest
 	[Fact]
 	public void FileSynchronizationMessage_BadBytesData()
 	{
-		var invalidData = Encoding.UTF8.GetBytes("Invalid JSON string");
+		byte[] invalidData = [];
 		
+		invalidData = Encoding.UTF8.GetBytes("");
+		Assert.Throws<DeserializationException>(() => FileSynchronizationMessage.FromBytes(invalidData, invalidData.Length));
+
+		invalidData = new byte[1024];
 		Assert.Throws<DeserializationException>(() => FileSynchronizationMessage.FromBytes(invalidData, invalidData.Length));
 	}
 	
