@@ -28,7 +28,8 @@ public sealed class Client
 
 	#endregion
 
-	private bool isClientRunning = false;
+	private bool _isClientRunning = false;
+	private bool _isTerminationCalled = false;
 
 	/// <summary>
 	/// Client initialization with prepared dependencies.
@@ -37,7 +38,7 @@ public sealed class Client
 	public Client(string[] commandLineArguments)
 	{
 		_serviceProvider = DependencyInjection.GetServiceProvider();
-		
+
 		var genericCfg = new ConfigurationBuilder()
 			.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
 			.AddCommandLine(commandLineArguments)
@@ -55,48 +56,47 @@ public sealed class Client
 		var appCfg = genericCfg.GetSection("Application").Get<ApplicationConfiguration>();
 		_serverConfiguration = serverCfg ?? throw new InvalidConfiguration("Unable to load client configuration for server.");
 		_applicationConfiguration = appCfg ?? throw new InvalidConfiguration("Unable to load client configuration with source directory path for synchronization.");
-		
-		_tcpTransportAdapter = new TcpTransportAdapter(Logger, _serverConfiguration);
+
+		_tcpTransportAdapter = new TcpTransportAdapter(Logger, _serverConfiguration, _applicationConfiguration);
 	}
 
-	public void Run()
+	public async Task Run(CancellationToken cancellationToken)
 	{
 		try
 		{
 			var synchronizationProvider = GetStorageSynchronizationProvider(_applicationConfiguration.SourceMode);
 			synchronizationProvider.Observe();
-			
-			isClientRunning = true;
+
+			_isClientRunning = true;
 		}
 		catch (InvalidConfiguration e)
 		{
-			Logger.LogError("Failed to observ source directory, error: {err}", e.Message);
+			Logger.LogError("Failed to observe source directory for file synchronization, error: {err}", e.Message);
 			return;
 		}
-		
-		try
-		{
-			Logger.LogInformation("Connecting to Server: {ServerIP}:{ServerPort} ...", _serverConfiguration.Ip,  _serverConfiguration.Port);
-			_tcpTransportAdapter.Connect();
-			Logger.LogInformation("Connected...");
 
-			while (isClientRunning)
-			{
-				// Give small delay if on client side there is activity before doing any sync
-				Thread.Sleep(1000); 
-			}
-		}
-		catch (Exception e)
+		Logger.LogInformation("File synchronization client ready...");
+		while (!cancellationToken.IsCancellationRequested || _isClientRunning)
 		{
-			Logger.LogError(e, "An error occured while running the client");
-			throw new RuntimeException("Execution of application aborted with unexpected internal error.");
+			try
+			{
+				await Task.Delay(1000, cancellationToken); // Delay to avoid tight looping.
+			}
+			catch (TaskCanceledException)
+			{
+				break;
+			}
 		}
 	}
 
 	public void Stop()
 	{
-		// TODO Update ISynchronizationProvider to gracefully stop File Observing
+		if (_isTerminationCalled) return;
+
+		Logger.LogInformation("Stopping client...");
 		_tcpTransportAdapter.Close();
+		_isClientRunning = false;
+		_isTerminationCalled = true;
 	}
 
 	ISynchronizationProvider GetStorageSynchronizationProvider(ClientProviderMode mode)
@@ -113,13 +113,12 @@ public sealed class Client
 			default:
 				throw new InvalidConfiguration($"Unexpected {nameof(ClientProviderMode)}: {mode}");
 		}
-		
-		
+
 		provider.OnFileChanged += SynchronizationProvider_BindOnFileChanged;
 
 		return provider;
 	}
-	
+
 	private void SynchronizationProvider_BindOnFileChanged(object? sender, SynchronizationEvent e)
 	{
 		if (sender is not ISynchronizationProvider)
@@ -130,7 +129,28 @@ public sealed class Client
 
 		Logger.LogDebug("Synchronization provider: {Name}", sender.GetType().Name);
 		Logger.LogDebug("Event Type: {Type} - File: {Path}", e.ChangeType, e.FilePath);
-		
+
+		try
+		{
+			Logger.LogDebug(
+				"Establishing new connection to server for synchronization: {IP}:{Port}",
+				_serverConfiguration.Ip,
+				_serverConfiguration.Port
+			);
+
+			_tcpTransportAdapter.Connect();
+
+			Logger.LogDebug("Connection established...");
+		}
+		catch (Exception ex)
+		{
+			Logger.LogError(
+				"An error occured while establishing connection to server for synchronization, error: {msg}",
+				ex.Message
+			);
+			return;
+		}
+
 		_tcpTransportAdapter.NotifyServer(e.ChangeType, e.FilePath);
 	}
 }

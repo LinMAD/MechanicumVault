@@ -14,6 +14,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MechanicumVault.Core.UnitTe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MechanicumVault.Core.FunctionalTests", "tests\MechanicumVault.Core.FunctionalTests\MechanicumVault.Core.FunctionalTests.csproj", "{A98E877D-D073-41A2-B6A0-341C13F2B277}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MechanicumVault.EndToEnd", "tests\MechanicumVault.EndToEnd\MechanicumVault.EndToEnd.csproj", "{0B37D496-486A-4D0F-B84D-BE64E409F819}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +27,7 @@ Global
 		{8C3C663B-B7BB-493D-A5D5-01444FEF1630} = {CDB13409-78E1-4D17-B177-BB472A89EBA3}
 		{59F46C82-890D-44D7-AFCD-503C74B160F6} = {4EF58421-C2BE-4668-B176-67EE62B5CA0D}
 		{A98E877D-D073-41A2-B6A0-341C13F2B277} = {4EF58421-C2BE-4668-B176-67EE62B5CA0D}
+		{0B37D496-486A-4D0F-B84D-BE64E409F819} = {4EF58421-C2BE-4668-B176-67EE62B5CA0D}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{92D79108-DCD2-49D3-8D28-890D13A465F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -47,5 +50,9 @@ Global
 		{A98E877D-D073-41A2-B6A0-341C13F2B277}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A98E877D-D073-41A2-B6A0-341C13F2B277}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A98E877D-D073-41A2-B6A0-341C13F2B277}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B37D496-486A-4D0F-B84D-BE64E409F819}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B37D496-486A-4D0F-B84D-BE64E409F819}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B37D496-486A-4D0F-B84D-BE64E409F819}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B37D496-486A-4D0F-B84D-BE64E409F819}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

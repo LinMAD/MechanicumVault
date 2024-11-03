@@ -10,12 +10,10 @@ public class FileSynchronizationProvider : ISynchronizationProvider
 {
 	private readonly IFileSystemWatcherFactory _fileSystemWatcherFactory;
 	private FileSystemWatcher? _fileSystemWatcher;
-	private string _sourceDirectory = string.Empty;
 
 	public FileSynchronizationProvider(IFileSystemWatcherFactory fileSystemWatcherFactory)
 	{
 		_fileSystemWatcherFactory = fileSystemWatcherFactory;
-		// TODO Add logger
 	}
 
 	public void Observe()
@@ -47,15 +45,13 @@ public class FileSynchronizationProvider : ISynchronizationProvider
 			throw new NotFoundException($"Directory {pointOfInterest} does not exist");
 		}
 
-		_sourceDirectory = pointOfInterest;
 		try
 		{
-			_fileSystemWatcher = _fileSystemWatcherFactory.Create(_sourceDirectory);
+			_fileSystemWatcher = _fileSystemWatcherFactory.Create(pointOfInterest);
 			_fileSystemWatcher.IncludeSubdirectories = true;
 		}
 		catch (Exception e)
 		{
-			// TODO Refactor, use logger to log exception message to prevent leaks of generic or possible sensitive information from Exception
 			throw new MechanicumVaultException(
 				$"Unable to observe point of interest({pointOfInterest}) filsystem watcher error: {e.Message}"
 			);

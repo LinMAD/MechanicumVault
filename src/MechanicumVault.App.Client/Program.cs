@@ -6,8 +6,9 @@
 	public class Program
 	{
 		private static Common.Client Client = null!;
+		private static readonly CancellationTokenSource CancellationTokenSource = new CancellationTokenSource();
 		
-		static void Main(string[] args)
+		static async Task Main(string[] args)
 		{
 			Client = new Common.Client(args);
 
@@ -15,7 +16,7 @@
 			Console.CancelKeyPress += OnExit;
 			AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
 
-			Client.Run();
+			await Client.Run(CancellationTokenSource.Token);
 		}
 		
 		/// <summary>
@@ -25,6 +26,7 @@
 		{
 			args.Cancel = true;
 			Client.Stop();
+			CancellationTokenSource.Cancel();
 		}
 
 		/// <summary>
@@ -33,6 +35,7 @@
 		private static void OnProcessExit(object? sender, EventArgs args)
 		{
 			Client.Stop();
+			CancellationTokenSource.Cancel();
 		}
 	}
 }
