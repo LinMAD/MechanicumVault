@@ -2,6 +2,7 @@
 
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using MechanicumVault.Core.Configurations;
 using MechanicumVault.Core.Exceptions;
 using Microsoft.Extensions.Configuration;
@@ -30,7 +31,7 @@ namespace MechanicumVault.App.Server
 					builder.AddConfiguration(Configuration.GetSection("Logging"));
 					builder.AddConsole();
 				})
-				.CreateLogger("MechanicumVault.App.Client");
+				.CreateLogger(Assembly.GetExecutingAssembly().GetName().Name ?? "Server");
 
 			ServerConfiguration = Configuration.GetSection("Server").Get<ServerConfiguration>();
 		}

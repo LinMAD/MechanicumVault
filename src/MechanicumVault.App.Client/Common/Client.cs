@@ -1,5 +1,7 @@
-﻿using MechanicumVault.App.Client.Common.Configurations;
+﻿using System.Reflection;
+using MechanicumVault.App.Client.Common.Configurations;
 using MechanicumVault.App.Client.Common.Mode;
+using MechanicumVault.App.Client.Common.Transports;
 using MechanicumVault.Core;
 using MechanicumVault.Core.Configurations;
 using MechanicumVault.Core.Exceptions;
@@ -16,12 +18,12 @@ namespace MechanicumVault.App.Client.Common;
 public sealed class Client
 {
 	private static ILogger Logger = null!;
-	
 	private readonly ServiceProvider _serviceProvider;
+	private readonly TcpTransport _tcpTransport;
 
 	#region Configurations
 
-	private readonly ServerConfiguration _serverConfiguration;
+	private readonly ServerConfiguration _serverConfiguration = null!;
 	private readonly ApplicationConfiguration _applicationConfiguration;
 
 	#endregion
@@ -35,6 +37,7 @@ public sealed class Client
 	public Client(string[] commandLineArguments)
 	{
 		_serviceProvider = DependencyInjection.GetServiceProvider();
+		
 		var genericCfg = new ConfigurationBuilder()
 			.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
 			.AddCommandLine(commandLineArguments)
@@ -45,28 +48,24 @@ public sealed class Client
 				builder.AddConfiguration(genericCfg.GetSection("Logging"));
 				builder.AddConsole();
 			})
-			.CreateLogger("MechanicumVault.App.Client");
+			.CreateLogger(Assembly.GetExecutingAssembly().GetName().Name ?? "Client");
 
 		// TODO Create validator / dispatcher for configurations
 		var serverCfg = genericCfg.GetSection("Server").Get<ServerConfiguration>();
 		var appCfg = genericCfg.GetSection("Application").Get<ApplicationConfiguration>();
 		_serverConfiguration = serverCfg ?? throw new InvalidConfiguration("Unable to load client configuration for server.");
 		_applicationConfiguration = appCfg ?? throw new InvalidConfiguration("Unable to load client configuration with source directory path for synchronization.");
+		
+		_tcpTransport = new TcpTransport(Logger, _serverConfiguration);
 	}
 
 	public void Run()
 	{
-
-		
 		try
 		{
 			var synchronizationProvider = GetStorageSynchronizationProvider(_applicationConfiguration.SourceMode);
-			
-			Logger.LogInformation("IP: {ServerIP}", _serverConfiguration?.Ip);
-			Logger.LogInformation("Port: {ServerPort}", _serverConfiguration?.Port);
-			
 			synchronizationProvider.Observe();
-
+			
 			isClientRunning = true;
 		}
 		catch (InvalidConfiguration e)
@@ -77,16 +76,27 @@ public sealed class Client
 		
 		try
 		{
+			Logger.LogInformation("Connecting to Server: {ServerIP}:{ServerPort} ...", _serverConfiguration.Ip,  _serverConfiguration.Port);
+			_tcpTransport.Connect();
+			Logger.LogInformation("Connected...");
+
 			while (isClientRunning)
 			{
-				// TODO Send via TCP
+				// Give small delay if on client side there is activity before doing any sync
+				Thread.Sleep(1000); 
 			}
 		}
 		catch (Exception e)
 		{
 			Logger.LogError(e, "An error occured while running the client");
-			throw new RunTimeException("Execution of application aborted with unexpected internal error.");
+			throw new RuntimeException("Execution of application aborted with unexpected internal error.");
 		}
+	}
+
+	public void Stop()
+	{
+		// TODO Update ISynchronizationProvider to gracefully stop File Observing
+		_tcpTransport.Close();
 	}
 
 	ISynchronizationProvider GetStorageSynchronizationProvider(ClientProviderMode mode)
@@ -97,7 +107,7 @@ public sealed class Client
 		{
 			case ClientProviderMode.FileSystem:
 				var newProvider = _serviceProvider.GetService<ISynchronizationProvider>();
-				provider = newProvider ?? throw new RunTimeException("Unable to locate the storage synchronization provider");
+				provider = newProvider ?? throw new RuntimeException("Unable to locate the storage synchronization provider");
 				provider.SetNewObservablePointOfInterest(_applicationConfiguration.SourceDirectory);
 				break;
 			default:
@@ -110,7 +120,7 @@ public sealed class Client
 		return provider;
 	}
 	
-	private static void SynchronizationProvider_BindOnFileChanged(object? sender, SynchronizationEvent e)
+	private void SynchronizationProvider_BindOnFileChanged(object? sender, SynchronizationEvent e)
 	{
 		if (sender is not ISynchronizationProvider)
 		{
@@ -120,5 +130,7 @@ public sealed class Client
 
 		Logger.LogDebug("Synchronization provider: {Name}", sender.GetType().Name);
 		Logger.LogDebug("Event Type: {Type} - File: {Path}", e.ChangeType, e.FilePath);
+		
+		_tcpTransport.NotifyServer(e.ChangeType, e.FilePath);
 	}
 }
